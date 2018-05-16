@@ -2,6 +2,7 @@ import inquirer from 'inquirer'
 
 import gameReducer, { move } from './game'
 import { createStore } from 'redux'
+import aiTurn from './game/ai'
 
 const printBoard = () => {
   const { board } = game.getState()
@@ -16,13 +17,17 @@ const printBoard = () => {
 const getInput = player => async () => {
   const { turn } = game.getState()
   if (turn !== player) return
-  const ans = await inquirer.prompt([{
-    type: 'input',
-    name: 'coord',
-    message: `${turn}'s move (row,col):`
-  }])
-  const [row = 0, col = 0] = ans.coord.split(/[,\s+]/).map(x => +x)
-  game.dispatch(move(turn, [row, col]))
+  if (player === 'X') {
+    const ans = await inquirer.prompt([{
+      type: 'input',
+      name: 'coord',
+      message: `${turn}'s move (row,col):`
+    }])
+    const [row = 0, col = 0] = ans.coord.split(/[,\s+]/).map(x => +x)
+    game.dispatch(move(turn, [row, col]))
+  } else {
+    game.dispatch(aiTurn(game.getState()))
+  }
 }
 
 // Create the store
@@ -41,7 +46,7 @@ game.subscribe(() => {
 game.subscribe(() => {
   const { error } = game.getState();
   if (error) {
-    process.stderr.write(error+'\n');
+    process.stderr.write(error + '\n');
   }
 });
 

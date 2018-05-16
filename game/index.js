@@ -23,7 +23,7 @@ const streak = (board, firstCoord, ...remainingCoords) => {
   return count === 2 ? firstEntry : null;
 }
 
-const winner = (board) => {
+export const winner = (board) => {
   let winner = null;
 
   for (let row = 0; row < 3; row++) {
@@ -54,7 +54,7 @@ const winner = (board) => {
 }
 
 // Validation
-const badMove = (state, action) => {
+export const badMove = (state, action) => {
   if (action.type === MOVE) {
     if (state.turn !== action.turn) return `Sorry, it's not your turn!`;
     if (!Array.isArray(action.position) || !action.position.every((value) => value >= 0 && value < 3)) return `Invalid input`;
@@ -76,7 +76,7 @@ const turnReducer = (turn = 'X', action) => {
   return turn
 }
 
-const boardReducer = (board = Map(), action) => {
+export const boardReducer = (board = Map(), action) => {
   if (action.type === MOVE) {
     return board.setIn(action.position, action.turn)
   }
@@ -85,7 +85,7 @@ const boardReducer = (board = Map(), action) => {
 
 export default function reducer(state = initialState, action) {
   const error = badMove(state, action);
-  if (error) return Object.assign({}, state, {error});
+  if (error) return Object.assign({}, state, { error });
 
   const newBoard = boardReducer(state.board, action)
   return {
