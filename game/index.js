@@ -5,7 +5,8 @@ const MOVE = 'MOVE'
 
 const initialState = {
   turn: 'X',
-  board: Map()
+  board: Map(),
+  winner: 'ongoing'
 }
 
 const streak = (board, firstCoord, ...remainingCoords) => {
@@ -43,28 +44,38 @@ const winner = (board) => {
     return winner;
   } else {
     for (let i = 0; i < 3; i++) {
-      for (let j=0; j < 3; j++) {
-        if (!Map.getIn([i, j])) return 'ongoing';
+      for (let j = 0; j < 3; j++) {
+        if (!board.getIn([i, j])) return 'ongoing';
       }
     }
   }
-
   return 'draw';
 }
 
-
-
 // Action Creators
 export const move = (turn, position) => {
-  return { type: MOVE, position }
+  return { type: MOVE, turn, position }
+}
+
+const turnReducer = (turn = 'X', action) => {
+  if (action.type === MOVE) {
+    return turn === 'X' ? 'O' : 'X'
+  }
+  return turn
+}
+
+const boardReducer = (board = Map(), action) => {
+  if (action.type === MOVE) {
+    return board.setIn(action.position, action.turn)
+  }
+  return board
 }
 
 export default function reducer(state = initialState, action) {
-  if (action.type === MOVE) {
-    return {
-      turn: (state.turn === 'X' ? 'O' : 'X'),
-      board: state.board.setIn(action.position, state.turn)
-    }
+  const newBoard = boardReducer(state.board, action)
+  return {
+    turn: turnReducer(state.turn, action),
+    board: newBoard,
+    winner: winner(newBoard)
   }
-  return state
 }
