@@ -36,8 +36,14 @@ game.subscribe(getInput('X'))
 game.subscribe(getInput('O'))
 game.subscribe(() => {
   const { winner: result } = game.getState()
-  result === 'draw' ? process.stdout.write(`Cat's Game`) && process.exit(0) : result !== 'ongoing' && process.stdout.write(`Player ${result} wins!!!`) && process.exit`(0)
-})
+  result === 'draw' ? process.stdout.write(`Cat's Game\n`) && process.exit(0) : result !== 'ongoing' && process.stdout.write(`Player ${result} wins!!!\n`) && process.exit(0)
+});
+game.subscribe(() => {
+  const { error } = game.getState();
+  if (error) {
+    process.stderr.write(error+'\n');
+  }
+});
 
 // We dispatch a dummy START action to call all our
 // subscribers the first time.

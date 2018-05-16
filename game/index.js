@@ -6,7 +6,8 @@ const MOVE = 'MOVE'
 const initialState = {
   turn: 'X',
   board: Map(),
-  winner: 'ongoing'
+  winner: 'ongoing',
+  error: ''
 }
 
 const streak = (board, firstCoord, ...remainingCoords) => {
@@ -52,6 +53,17 @@ const winner = (board) => {
   return 'draw';
 }
 
+// Validation
+const badMove = (state, action) => {
+  if (action.type === MOVE) {
+    if (state.turn !== action.turn) return `Sorry, it's not your turn!`;
+    if (!Array.isArray(action.position) || !action.position.every((value) => value >= 0 && value < 3)) return `Invalid input`;
+    if (state.board.getIn(action.position)) return `This spot is already taken. Please try again.`;
+  }
+
+  return null;
+}
+
 // Action Creators
 export const move = (turn, position) => {
   return { type: MOVE, turn, position }
@@ -72,10 +84,14 @@ const boardReducer = (board = Map(), action) => {
 }
 
 export default function reducer(state = initialState, action) {
+  const error = badMove(state, action);
+  if (error) return Object.assign({}, state, {error});
+
   const newBoard = boardReducer(state.board, action)
   return {
     turn: turnReducer(state.turn, action),
     board: newBoard,
-    winner: winner(newBoard)
+    winner: winner(newBoard),
+    error: ''
   }
 }
